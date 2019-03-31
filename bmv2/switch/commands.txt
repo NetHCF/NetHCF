@@ -1,0 +1,46 @@
+table_set_default hcf_check_table check_hcf 1
+table_set_default session_init_table init_session
+table_set_default session_complete_table tag_abnormal
+table_set_default packet_normal_table tag_normal
+table_set_default packet_abnormal_table tag_abnormal
+table_set_default hc_compute_table compute_hc 255
+table_set_default hc_compute_table_copy compute_hc 255
+table_set_default hc_inspect_table inspect_hc
+table_set_default hc_abnormal_table filtering_abnormal
+table_set_default l2_forward_table _drop
+table_set_default ip_to_hc_table table_miss
+table_set_default get_ip_table get_src_ip
+table_set_default miss_packet_clone_table packet_clone
+table_set_default miss_packet_clone_table_copy packet_clone
+table_set_default session_complete_update_table session_complete_update
+table_set_default packet_miss_table tag_abnormal
+table_set_default modify_field_and_truncate_table nop
+table_set_default hit_count_update_table update_hit_count
+table_set_default hit_bitmap_set_table set_hit_bitmap
+table_add session_check_table lookup_session_map 1 =>
+table_add session_check_table lookup_reverse_session_map 2 =>
+table_add session_complete_table complete_session 1 =>
+table_add get_ip_table get_des_ip 1 1 =>
+table_add hc_compute_table compute_hc 0->29 => 30 0
+table_add hc_compute_table compute_hc 30->31 => 32 0
+table_add hc_compute_table compute_hc 32->59 => 60 0
+table_add hc_compute_table compute_hc 60->63 => 64 0
+table_add hc_compute_table compute_hc 64->127 => 128 0
+table_add hc_compute_table compute_hc 128->255 => 255 0
+table_add hc_compute_table_copy compute_hc 0->29 => 30 0
+table_add hc_compute_table_copy compute_hc 30->31 => 32 0
+table_add hc_compute_table_copy compute_hc 32->59 => 60 0
+table_add hc_compute_table_copy compute_hc 60->63 => 64 0
+table_add hc_compute_table_copy compute_hc 64->127 => 128 0
+table_add hc_compute_table_copy compute_hc 128->255 => 255 0
+table_add hc_abnormal_table learning_abnormal 0 =>
+table_add hc_abnormal_table filtering_abnormal 1 =>
+table_add l2_forward_table forward_l2 0 1 => 2
+table_add l2_forward_table forward_l2 0 2 => 1
+table_add l2_forward_table forward_l2 0 3 => 2
+table_add packet_miss_table tag_normal 0 =>
+table_add packet_miss_table tag_abnormal 1 =>
+table_add modify_field_and_truncate_table only_truncate 0 0 =>
+table_add modify_field_and_truncate_table modify_field_and_truncate 0 1 =>
+table_add modify_field_and_truncate_table modify_field_and_truncate 1 1 =>
+mirroring_add 250 3
