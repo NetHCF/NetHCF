@@ -1,8 +1,9 @@
 # NetHCF: Enabling Line-rate and Adaptive Spoofed IP Traffic Filtering
 This is a introduction to our NetHCF project.
 ## Overview
-We propose NetHCF, a line-rate in-network spoofed traffic filtering system. 
-To fit the classic Hop-Count Filtering (HCF) scheme into memory-limited and computation-restrictive switching ASICs, we decouple the existing HCF into two complementary parts, and design several effective mechanisms to make NetHCF adapt to end-to-end routing changes, IP popularity varieties, and network activity dynamics.
+We identify the opportunity of using programmable switching ASICs to improve the current practice of spoofed IP traffic filtering, and propose NetHCF, a line-rate in-network spoofed traffic filtering system. 
+
+To satisfy the restrictrictions posed by the limited memory resources and computation model of the switching ASICs, we decompose the HCF scheme into two complementary parts, aggregate the IP-to-Hop-Count (IP2HC) mapping table for efficient memory usage, and design adaptive mechanisms to handle routing changes, IP popularity varieties, and network activity dynamics.
 
 We implement NetHCF on both software simulator (BMv2) and realistic physical hardware (Tofino Switch) of programmable switching ASICs. The data plane of NetHCF is implemented with P4, while the control plane is written in Python. But due to the non-disclosure agreement with Barefoot, we only open the source code of our BMv2 version.
 
