@@ -15,11 +15,11 @@ Please refer to our paper.
 ## Test
 The method to start the p4 switch is to set up a topology on **mininet** where we run the switch.
 
-1. Open a terminal and enter the directory `bmv2/switch/`
-2. Run `run_demo.sh` to start the switch (the data plane of NetHCF) on the topology defined in `topo.py`
+1. Open a terminal and enter the directory `bmv2/switch/`, edit `bmv2/switch/env.sh` and `bmv2/controller/config.py` to modify the configurations.
+2. Run `run_demo.sh` to start the switch (the data plane of NetHCF) on the topology defined in `topo.py`.
 3. Run a simple web server and client according to [mininet walkthrough](http://mininet.org/walkthrough/#run-a-simple-web-server-and-client). 
-4. Open another terminal, and enter the directory `bmv2/controller/`
-5. Run `controller.py` (don't forget to modify parameters in the file) to start the controller (the control plane of NetHCF) to coordinate with the switch
+4. Open another terminal, and enter the directory `bmv2/controller/`.
+5. Run `controller.py` (don't forget to modify parameters in the file) to start the controller (the control plane of NetHCF) to coordinate with the switch.
 6. Then, just try!
 
 ## Source Code
