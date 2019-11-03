@@ -10,6 +10,7 @@ from config import *
 
 class ImpactHeap:
     # item: [impact_factor, ip_addr, prefix_len]
+    # impact_factor > 0 means this ip is cached and the index is impact_factor-1
     def __init__(self, impact_factor_function, mpmgr):
         self._heap = mpmgr.list()
         self.impact_factor_function = impact_factor_function
@@ -70,6 +71,11 @@ class ImpactHeap:
                 "Error: Can't find entry in impact heap for ip %d..." % ip_addr
             )
             return -1
+
+    def get_cached_index(self, ip_addr):
+        heap_idx = self.get_heap_index(ip_addr)
+        heap_entry = self._heap[heap_idx]
+        return heap_entry[IMPACT_HEAP_IMPACT_FACTOR_FLAG] - 1
 
 class Cache:
     # Cache Item: [ip_addr, prefix_len, entry_handle]
@@ -166,6 +172,8 @@ class IP2HC:
         # print("Cache List Size: %d" % sys.getsizeof(self.cache))
         # cache update brought by IP2HC aggregating
         self.cache_items_to_remove = mpmgr.list()
+        # cache update brought by Hop Count update
+        self.cache_items_to_update = mpmgr.list()
         # Load the default_hc_list into IP2HC and cache
         if len(default_hc_list) > CACHE_SIZE:
             print("Warning: the cache cannot hold the whole default_hc_list")
@@ -371,7 +379,14 @@ class IP2HC:
                                 # IP2HC may be can be aggregated
                                 key_list.append(IP2HC_HIT_KEY)
                                 key_list.append(IP2HC_HOP_COUNT_FLAG)
+                                # Update IP2HC with the latest Hop Count
                                 set_mpmgr_dict(self._ip2hc, key_list, hc_value)
+                                cache_idx = \
+                                    self.impact_heap.get_cached_index(ip_addr)
+                                if cache_idx >= 0:
+                                    self.cache_items_to_update.append(
+                                        (cache_idx, hc_value)
+                                    )
                                 key_list.pop()
                                 key_list.pop()
                                 self.aggregate(key_list, ip_addr, 32)
@@ -629,8 +644,9 @@ class IP2HC:
         cache_item = self.cache.get_cached_item(cache_idx)
         ip_addr = cache_item[CACHE_IP_ADDR_FLAG]
         prefix_len = cache_item[CACHE_PREFIX_LEN_FLAG]
+        entry_handle = cache_item[CACHE_ENTRY_HANDLE_FLAG]
         hc_value = self.read_hc(ip_addr)
-        return ip_addr, prefix_len, hc_value 
+        return ip_addr, prefix_len, hc_value, entry_handle 
 
     def update_cache(self, hits_bitmap):
         # Select count item to be replaced
@@ -723,6 +739,11 @@ class IP2HC:
         cache_items_to_remove = set(self.cache_items_to_remove)
         self.cache_items_to_remove[:] = []
         return cache_items_to_remove
+
+    def update_outdated_cache(self):
+        cache_items_to_update = set(self.cache_items_to_update)
+        self.cache_items_to_update[:] = []
+        return cache_items_to_update
 
     def remove_cached_item(self, cache_idx):
         return self.cache.remove_cached_item(cache_idx)

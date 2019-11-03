@@ -20,13 +20,13 @@ class NetHCFController:
         self.tcp_session = TCP_Session()
         self.miss = self.mpmgr.Value('I', 0)
         self.mismatch = self.mpmgr.Value('I', 0)
-        self.hcf_state = self.mpmgr.Value('B', 0) # 0: learning 1: filtering
+        self.nethcf_state = self.mpmgr.Value('B', 0) # 0: learning 1: filtering
         self.hits_bitmap = []
         self.learn_to_filter_thr = LEARN_TO_FILTER_THR
         self.filter_to_learn_thr = FILTER_TO_LEARN_THR
 
     def initialize(self):
-        self.hcf_state.value = HCF_LEARNING_STATE
+        self.nethcf_state.value = HCF_LEARNING_STATE
         self.switch.switch_to_learning_state()
         self.load_cache_into_switch()
         self.reset_period_counters()
@@ -85,10 +85,10 @@ class NetHCFController:
             # Initial TTL may be 60, or 64
             hop_count = 60 - current_ttl
             hop_count_possible = 64 - current_ttl
-        elif 60 <= current_ttl <= 63:
+        elif 60 <= current_ttl <= 64:
             hop_count = 64 - current_ttl
             hop_count_possible = hop_count
-        elif 64 <= current_ttl <= 127:
+        elif 65 <= current_ttl <= 128:
             hop_count = 128 - current_ttl
             hop_count_possible = hop_count
         else:
@@ -110,7 +110,7 @@ class NetHCFController:
                 )
             else:
                 self.ip2hc.update_match_times(pkt[IP].src, 1)
-            if self.hcf_state.value == HCF_FILTERING_STATE:
+            if self.nethcf_state.value == HCF_FILTERING_STATE:
                 sendp(pkt, iface=self.iface)
         else:
             # The HC may not be computed,
@@ -152,19 +152,19 @@ class NetHCFController:
 
     def process_update_request(self):
         self.pull_switch_counters()
+        self.update_new_hc_in_cache()
+        self.clear_up_cache()
+        update_scheme = self.ip2hc.update_cache(self.hits_bitmap)
+        self.update_cache_into_switch(update_scheme)
         # Switch state in terms of abnormal_counter in last period
-        if self.hcf_state.value == HCF_LEARNING_STATE and \
+        if self.nethcf_state.value == HCF_LEARNING_STATE and \
            self.mismatch.value > self.learn_to_filter_thr:
-            self.hcf_state.value = HCF_FILTERING_STATE
+            self.nethcf_state.value = HCF_FILTERING_STATE
             self.switch.switch_to_filtering_state()
-        elif self.hcf_state.value == HCF_FILTERING_STATE and \
+        elif self.nethcf_state.value == HCF_FILTERING_STATE and \
              self.mismatch.value < self.filter_to_learn_thr:
-            self.hcf_state.value = HCF_LEARNING_STATE
+            self.nethcf_state.value = HCF_LEARNING_STATE
             self.switch.switch_to_learning_state()
-        elif self.hcf_state.value == HCF_LEARNING_STATE:
-            self.clear_up_cache()
-            update_scheme = self.ip2hc.update_cache(self.hits_bitmap)
-            self.update_cache_into_switch(update_scheme)
         self.reset_period_counters()
 
     # Assume controller is running on the switch
@@ -184,12 +184,24 @@ class NetHCFController:
 
     def load_cache_into_switch(self):
         for idx in self.ip2hc.get_cached_index_set():
-            ip_addr, prefix_len, hc_value = self.ip2hc.get_cached_info(idx)
-            entry_handle = \
-                    self.switch.add_into_ip2hc_mat(ip_addr, prefix_len, idx)
+            ip_addr, prefix_len, hc_value = self.ip2hc.get_cached_info(idx)[:3]
+            entry_handle = self.switch.add_into_ip2hc_mat(
+                ip_addr, prefix_len, hc_value, idx
+            )
             if entry_handle != -1:
                 self.ip2hc.update_entry_handle_in_cache(idx, entry_handle)
-                self.switch.update_hc_value(idx, hc_value)
+
+    def update_new_hc_in_cache(self):
+        outdated_cache_items = self.ip2hc.update_outdated_cache()
+        for (cache_idx, hc_value) in outdated_cache_items:
+            (ip_addr, prefix_len, old_hc_value, old_entry_handle) = \
+                    self.ip2hc.get_cached_info(cache_idx)
+            self.switch.delete_from_ip2hc_mat(old_entry_handle)
+            entry_handle = self.switch.add_into_ip2hc_mat(
+                ip_addr, prefix_len, hc_value, cache_idx
+            )
+            if entry_handle != -1:
+                self.ip2hc.update_entry_handle_in_cache(cache_idx, entry_handle)
 
     def clear_up_cache(self):
         outdated_cache_items = self.ip2hc.remove_outdated_cache()
@@ -212,11 +224,10 @@ class NetHCFController:
                 self.switch.delete_from_ip2hc_mat(entry_handle)
             # The cache is not full, insert new item dirctly
             entry_handle = self.switch.add_into_ip2hc_mat(
-                new_ip_addr, new_prefix_len, cache_idx
+                new_ip_addr, new_prefix_len, hc_value, cache_idx
             )
             if entry_handle != -1:
                 self.ip2hc.update_entry_handle_in_cache(cache_idx, entry_handle)
-                self.switch.update_hc_value(cache_idx, hc_value)
 
     def reset_period_counters(self):
         self.miss.value = 0
@@ -230,7 +241,7 @@ class NetHCFController:
 
 if __name__ == "__main__":
     default_hc_list = {
-        0x0A00000B: 64, 0x0A00000C: 32, 0x0A00000D: 32, 0x0A00000E: 32,\
+        0x0A00000B: 65, 0x0A00000C: 32, 0x0A00000D: 32, 0x0A00000E: 32,\
         0x0A00000F: 32, 0x0A000010: 32, 0x0A000011: 32, 0x0A000012: 32,\
         0x0A000013: 32, 0x0A000014: 32, 0x0A000015: 32, 0x0A000016: 32,\
         0x0A000017: 32

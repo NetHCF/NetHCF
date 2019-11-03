@@ -73,27 +73,25 @@ BMV2_PATH = "/home/dracula/p4_environment/behavioral-model"
 TARGET_THRIFT_IP = 'localhost'
 TARGET_THRIFT_PORT = 22223
 # TARGET_SWITCH = BMV2_PATH +  "/targets/simple_switch/sswitch_CLI"
-# TARGET_CODE = "hop_count.json"
+# TARGET_CODE = "nethcf.json"
 # TARGET_PORT = 22223
 
 NETHCF_SWITCH_CONFIG = {
     # counter name in p4
     "miss_counter": "miss_counter",
-    "mismatch_counter": "abnormal_counter",
-    "ip2hc_counter": "hit_count",
-    "ip2hc_counter_bitmap": "hit_bitmap",
-    # hc value register array name in p4
-    "ip2hc_register": "hop_count",
+    "mismatch_counter": "mismatch_counter",
+    "ip2hc_counter": "ip2hc_counter",
+    "ip2hc_counter_bitmap": "report_bitarray",
     # IP2HC Match-Action-Table name in p4
-    "ip2hc_mat": "ip_to_hc_table",
+    "ip2hc_mat": "ip2hc_table",
     # IP2HC Match-Action-Table action name in p4
     "read_hc_function": "table_hit",
     # State register name in p4
-    "hcf_state": "current_state",
+    "nethcf_state": "nethcf_state",
     # Dirty Flag register name in p4
-    "dirty_flag": "dirty_flag",
+    "dirty_flag": "ip2hc_valid_flag",
     # Dirty Bitmap register name in p4
-    "dirty_bitmap": "dirty_bitmap"
+    "dirty_bitmap": "temporary_bitmap"
 }
 
 DEBUG_OPTION = True

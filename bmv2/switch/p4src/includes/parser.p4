@@ -33,17 +33,17 @@ parser parse_ethernet {
 header ipv4_t ipv4;
 
 field_list ipv4_checksum_list {
-        ipv4.version;
-        ipv4.ihl;
-        ipv4.diffserv;
-        ipv4.totalLen;
-        ipv4.identification;
-        ipv4.flags;
-        ipv4.fragOffset;
-        ipv4.ttl;
-        ipv4.protocol;
-        ipv4.srcAddr;
-        ipv4.dstAddr;
+    ipv4.version;
+    ipv4.ihl;
+    ipv4.diffserv;
+    ipv4.totalLen;
+    ipv4.identification;
+    ipv4.flags;
+    ipv4.fragOffset;
+    ipv4.ttl;
+    ipv4.protocol;
+    ipv4.srcAddr;
+    ipv4.dstAddr;
 }
 
 field_list_calculation ipv4_checksum {
@@ -55,14 +55,23 @@ field_list_calculation ipv4_checksum {
 }
 
 calculated_field ipv4.hdrChecksum  {
-    verify ipv4_checksum;
+    /* verify ipv4_checksum; */
     update ipv4_checksum;
 }
+
+header_type routing_metadata_t {
+    fields {
+        tcpLength : 16;
+    }
+}
+
+metadata routing_metadata_t routing_metadata;
 
 #define IP_PROTOCOLS_TCP 6
 
 parser parse_ipv4 {
     extract(ipv4);
+    set_metadata(routing_metadata.tcpLength, ipv4.totalLen - 20);
     return select(latest.protocol) {
         IP_PROTOCOLS_TCP : parse_tcp;
         default: ingress;
@@ -74,4 +83,40 @@ header tcp_t tcp;
 parser parse_tcp {
     extract(tcp);
     return ingress;
+}
+
+field_list tcp_checksum_list {
+    ipv4.srcAddr;
+    ipv4.dstAddr;
+    8'0;
+    ipv4.protocol;
+    routing_metadata.tcpLength;
+    tcp.srcPort;
+    tcp.dstPort;
+    tcp.seqNo;
+    tcp.ackNo;
+    tcp.dataOffset;
+    tcp.res;
+    tcp.ecn;
+    tcp.urg;
+    tcp.ack;
+    tcp.psh;
+    tcp.rst;
+    tcp.syn;
+    tcp.fin;
+    tcp.window;
+    tcp.urgentPtr;
+    payload;
+}
+
+field_list_calculation tcp_checksum {
+    input {
+        tcp_checksum_list;
+    }
+    algorithm : csum16;
+    output_width : 16;
+}
+
+calculated_field tcp.checksum {
+    update tcp_checksum;
 }

@@ -24,7 +24,7 @@ SWITCH_PATH=$BMV2_PATH/targets/simple_switch/simple_switch
 
 CLI_PATH=$BMV2_PATH/targets/simple_switch/sswitch_CLI
 
-TARGET=hop_count
+TARGET=nethcf
 TARGET_SRC=$TARGET.p4
 TARGET_JSON=$TARGET.json
 
