@@ -1,5 +1,4 @@
 # NetHCF: Enabling Line-rate and Adaptive Spoofed IP Traffic Filtering
-This is a introduction to our NetHCF project.
 ## Overview
 We identify the opportunity of using programmable switching ASICs to improve the current practice of spoofed IP traffic filtering, and propose NetHCF, a line-rate in-network spoofed traffic filtering system. 
 
