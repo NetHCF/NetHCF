@@ -81,8 +81,7 @@ class NetHCFSwitchBMv2:
             miss_counter = self.read_counter(self.miss_counter, 0)
             miss_counter_value = miss_counter.packets
         except:
-            print("Error: Can't read miss counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't read miss counter!", self.error_hint_str)
             return 0
         else:
             if DEBUG_OPTION:
@@ -95,8 +94,7 @@ class NetHCFSwitchBMv2:
         try:
             self.reset_counter(self.miss_counter)
         except:
-            print("Error: Can't reset miss counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't reset miss counter!", self.error_hint_str)
         else:
             if DEBUG_OPTION:
                 print("Debug: miss counter is resetted.")
@@ -108,8 +106,7 @@ class NetHCFSwitchBMv2:
             mismatch_counter = self.read_counter(self.mismatch_counter, 0)
             mismatch_counter_value = mismatch_counter.packets
         except:
-            print("Error: Can't read mismatch counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't read mismatch counter!", self.error_hint_str)
             return 0
         else:
             if DEBUG_OPTION:
@@ -122,8 +119,7 @@ class NetHCFSwitchBMv2:
         try:
             self.reset_counter(self.mismatch_counter)
         except:
-            print("Error: Can't reset mismatch counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't reset mismatch counter!", self.error_hint_str)
         else:
             if DEBUG_OPTION:
                 print("Debug: mismatch counter is resetted.")
@@ -137,8 +133,7 @@ class NetHCFSwitchBMv2:
         try:
             match_times = self.read_register(self.ip2hc_counter, cache_idx)
         except:
-            print("Error: Can't read hits counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't read hits counter!", self.error_hint_str)
             return 0
         else:
             if DEBUG_OPTION:
@@ -151,8 +146,7 @@ class NetHCFSwitchBMv2:
         try:
             self.reset_register(self.ip2hc_counter)
         except:
-            print("Error: Can't reset hits counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't reset hits counter!", self.error_hint_str)
         else:
             if DEBUG_OPTION:
                 print("Debug: hits counter is resetted.")
@@ -188,8 +182,7 @@ class NetHCFSwitchBMv2:
                 self.read_hc_function, action_data, options
             )
         except:
-            print("Error: Can't add entry into IP2HC Match Action Table!\n")
-            print(self.error_hint_str)
+            print("Error: Can't add entry into IP2HC Match Action Table!", self.error_hint_str)
             return -1
         else:
             if DEBUG_OPTION:
@@ -207,8 +200,7 @@ class NetHCFSwitchBMv2:
         try:
             self.delete_mat_entry(self.ip2hc_mat, entry_handle)
         except:
-            print("Error: Can't delete entry from IP2HC MatchActionTable!\n")
-            print(self.error_hint_str)
+            print("Error: Can't delete entry from IP2HC MatchActionTable!", self.error_hint_str)
         else:
             if DEBUG_OPTION:
                 print("Debug: the entry is deleted")
@@ -220,8 +212,7 @@ class NetHCFSwitchBMv2:
         try:
             nethcf_state = self.read_register(self.nethcf_state, 0)
         except:
-            print("Error: Can't read register nethcf_state!\n")
-            print(self.error_hint_str)
+            print("Error: Can't read register nethcf_state!", self.error_hint_str)
             return -1
         else:
             if DEBUG_OPTION:
@@ -234,8 +225,7 @@ class NetHCFSwitchBMv2:
         try:
             self.write_register(self.nethcf_state, 0, 0)
         except:
-            print("Error: Can't write register nethcf_state!\n")
-            print(self.error_hint_str)
+            print("Error: Can't write register nethcf_state!", self.error_hint_str)
             return -1
         else:
             if DEBUG_OPTION:
@@ -248,8 +238,7 @@ class NetHCFSwitchBMv2:
         try:
             self.write_register(self.nethcf_state, 0, 1)
         except:
-            print("Error: Can't write register nethcf_state!\n")
-            print(self.error_hint_str)
+            print("Error: Can't write register nethcf_state!", self.error_hint_str)
             return -1
         else:
             if DEBUG_OPTION:
@@ -262,8 +251,7 @@ class NetHCFSwitchBMv2:
         try:
             hits_bitmap = self.read_register_array(self.ip2hc_counter_bitmap)
         except:
-            print("Error: Can't read the bitmap for hits counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't read the bitmap for hits counter!", self.error_hint_str)
             return 0
         else:
             if DEBUG_OPTION:
@@ -276,8 +264,7 @@ class NetHCFSwitchBMv2:
         try:
             self.reset_register(self.ip2hc_counter_bitmap)
         except:
-            print("Error: Can't reset the bitmap for hits counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't reset the bitmap for hits counter!", self.error_hint_str)
         else:
             if DEBUG_OPTION:
                 print("Debug: the bitmap for hits counter is resetted.")
@@ -288,8 +275,7 @@ class NetHCFSwitchBMv2:
         try:
             self.reset_register(self.dirty_flag)
         except:
-            print("Error: Can't reset the dirty flag!\n")
-            print(self.error_hint_str)
+            print("Error: Can't reset the dirty flag!", self.error_hint_str)
         else:
             if DEBUG_OPTION:
                 print("Debug: the dirty flag is resetted.")
@@ -298,8 +284,7 @@ class NetHCFSwitchBMv2:
         try:
             self.reset_register(self.dirty_bitmap)
         except:
-            print("Error: Can't reset the dirty bitmap!\n")
-            print(self.error_hint_str)
+            print("Error: Can't reset the dirty bitmap!", self.error_hint_str)
         else:
             if DEBUG_OPTION:
                 print("Debug: the dirty bitmap is resetted.")
@@ -336,8 +321,7 @@ class NetHCFSwitchBMv2CMD:
             packets_num_str = result[result.index("packets="):].split(',')[0]
             miss_counter_value = int(packets_num_str.split('=')[1])
         except:
-            print("Error: Can't read miss counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't read miss counter!", self.error_hint_str)
             return 0
         else:
             if DEBUG_OPTION:
@@ -356,8 +340,7 @@ class NetHCFSwitchBMv2CMD:
             print("Debug: resetting miss counter...")
         result = os.popen(self.reset_miss_counter_cmd()).read()
         if "Done" not in result:
-            print("Error: Can't reset miss counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't reset miss counter!", self.error_hint_str)
 
     def read_mismatch_counter_cmd(self):
         return (
@@ -374,8 +357,7 @@ class NetHCFSwitchBMv2CMD:
             packets_num_str = result[result.index("packets="):].split(',')[0]
             mismatch_counter_value = int(packets_num_str.split('=')[1])
         except:
-            print("Error: Can't read mismatch counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't read mismatch counter!", self.error_hint_str)
             return 0
         else:
             if DEBUG_OPTION:
@@ -394,8 +376,7 @@ class NetHCFSwitchBMv2CMD:
             print("Debug: resetting mismatch counter...")
         result = os.popen(self.reset_mismatch_counter_cmd()).read()
         if "Done" not in result:
-            print("Error: Can't reset mismatch counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't reset mismatch counter!", self.error_hint_str)
 
     def read_hits_counter_cmd(self, cache_idx):
         return (
@@ -418,8 +399,7 @@ class NetHCFSwitchBMv2CMD:
                 ):].split()[1]
             match_times = int(match_times_str)
         except:
-            print("Error: Can't read hits counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't read hits counter!", self.error_hint_str)
             return 0
         else:
             if DEBUG_OPTION:
@@ -438,8 +418,7 @@ class NetHCFSwitchBMv2CMD:
             print("Debug: resetting hits counter...")
         result = os.popen(self.reset_hits_counter_cmd()).read()
         if "Done" not in result:
-            print("Error: Can't reset hits counter!\n")
-            print(self.error_hint_str)
+            print("Error: Can't reset hits counter!", self.error_hint_str)
 
     # Add entry into IP2HC Match-Action-Table
     def add_into_ip2hc_mat_cmd(self, ip_addr, cache_idx):
@@ -464,8 +443,7 @@ class NetHCFSwitchBMv2CMD:
             entry_handle_str = result[result.index("handle"):].split()[1]
             entry_handle = int(entry_handle_str)
         except:
-            print("Error: Can't add entry into IP2HC Match Action Table!\n")
-            print(self.error_hint_str)
+            print("Error: Can't add entry into IP2HC Match Action Table!", self.error_hint_str)
             return -1
         else:
             if DEBUG_OPTION:
@@ -490,8 +468,7 @@ class NetHCFSwitchBMv2CMD:
         try:
             self.write_register(self.ip2hc_register, cache_idx, hc_value)
         except:
-            print("Error: Can't write into hc value register!\n")
-            print(self.error_hint_str)
+            print("Error: Can't write into hc value register!", self.error_hint_str)
         else:
             if DEBUG_OPTION:
                 print("Debug: hop count register is updated")
@@ -511,8 +488,7 @@ class NetHCFSwitchBMv2CMD:
             )
         result = os.popen(self.delete_from_ip2hc_mat_cmd(entry_handle)).read()
         if "Invalid" in result:
-            print("Error: Can't delete entry from IP2HC MatchActionTable!\n")
-            print(self.error_hint_str)
+            print("Error: Can't delete entry from IP2HC MatchActionTable!", self.error_hint_str)
 
     # Get the entry index in IP2HC-MAT
     def index_ip2hc_mat_cmd(self, ip_addr, cache_idx):
@@ -541,8 +517,7 @@ class NetHCFSwitchBMv2CMD:
                 result[result.index("%s[0]=" % self.nethcf_state):].split()[1]
             nethcf_state = int(nethcf_state_str)
         except:
-            print("Error: Can't read register nethcf_state!\n")
-            print(self.error_hint_str)
+            print("Error: Can't read register nethcf_state!", self.error_hint_str)
             return -1
         else:
             if DEBUG_OPTION:
@@ -563,8 +538,7 @@ class NetHCFSwitchBMv2CMD:
         if "Done" in result:
             return 0
         else:
-            print("Error: Can't write register nethcf_state!\n")
-            print(self.error_hint_str)
+            print("Error: Can't write register nethcf_state!", self.error_hint_str)
             return -1
 
     def switch_to_filtering_state_cmd(self):
@@ -581,7 +555,6 @@ class NetHCFSwitchBMv2CMD:
         if "Done" in result:
             return 0
         else:
-            print("Error: Can't write register nethcf_state!\n")
-            print(self.error_hint_str)
+            print("Error: Can't write register nethcf_state!", self.error_hint_str)
             return -1
 
