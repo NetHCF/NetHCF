@@ -1,88 +1,8 @@
 #include <core.p4>
 #include <v1model.p4>
 #include "include/headers.p4"
+#include "include/metadata.p4"
 #include "include/parser.p4"
-
-/* Width setting */
-#define HOP_COUNT_WIDTH 8
-#define IP2HC_INDEX_WIDTH 23
-#define IP2HC_COUNTER_WIDTH 8
-#define TEMPORARY_BITMAP_WIDTH 32
-#define TEMPORARY_BITMAP_INDEX_WIDTH 4
-#define SESSION_INDEX_WIDTH 8
-#define SESSION_TABLE_SIZE 256 // 2^8
-#define SESSION_STATE_WIDTH 2
-#define SESSION_MONITOR_RESULT_WIDTH 3
-#define PACKET_TAG_WIDTH 2
-
-/* Size setting */
-#define NETHCF_ENABLE_TABLE_SIZE 1
-#define NETHCF_PREPARE_TABLE_SIZE 1
-#define HC_INSPECT_TABLE_SIZE 8
-/* #define IP2HC_TABLE_SIZE 65536 // 2^16 */
-#define IP2HC_TABLE_SIZE 13
-#define TEMPORARY_BITMAP_SIZE 16
-#define FORWARD_TABLE_SIZE 10
-#define ONE_ACTION_TABLE_SIZE 0
-
-/* Specific value setting */
-#define CLONE_SPEC_VALUE 250
-#define CONTROLLER_IP_ADDRESS 0xC0A83865 //192.168.56.101
-#define CONTROLLER_PORT 3 // Maybe this parameter can be stored in a register
-#define PACKET_TRUNCATE_LENGTH 54
-#define IP2HC_HOT_THRESHOLD 10
-
-/* States of NetHCF */
-#define LEARNING_STATE 0
-#define FILTERING_STATE 1
-
-/* Flag of packets */
-#define NORMAL_FLAG 0
-#define ABNORMAL_FLAG 1
-#define SYN_COOKIE_FLAG 2
-
-/* States of TCP session monitor */
-#define SESSION_INITIAL 0
-#define HANDSHAKE_START 1
-#define SYN_COOKIE_START 2
-#define SYN_COOKIE_FINISH 3
-
-/* Results of TCP session monitor */
-#define PASS_AND_NOP 0
-#define FIRST_SYN 1
-#define SYNACK_WITHOUT_PROXY 2
-#define ACK_WITHOUT_PROXY 3
-#define ACK_WITH_PROXY 4
-#define SYN_AFTER_PROXY 5
-#define MONITOR_ABNORMAL 6
-
-struct metadata {
-    bit<1>  nethcf_enable_flag;
-    bit<1>  nethcf_state;
-    bit<HOP_COUNT_WIDTH>  packet_hop_count;
-    bit<32> ip_for_match;
-    bit<IP2HC_INDEX_WIDTH> ip2hc_index;
-    bit<1>  ip2hc_hit_flag;
-    bit<HOP_COUNT_WIDTH>  ip2hc_hop_count;
-    bit<IP2HC_COUNTER_WIDTH>  ip2hc_counter_value;
-    bit<1>  ip2hc_valid_flag;
-    bit<1>  dirty_hc_hit_flag;
-    bit<TEMPORARY_BITMAP_INDEX_WIDTH>  temporary_bitmap_index;
-    bit<TEMPORARY_BITMAP_WIDTH> temporary_bitarray;
-    bit<TEMPORARY_BITMAP_WIDTH> hop_count_bitarray;
-    bit<1>  update_ip2hc_flag;
-    bit<SESSION_INDEX_WIDTH>  session_index;
-    bit<SESSION_STATE_WIDTH>  session_state;
-    bit<32> session_seq;
-    bit<SESSION_MONITOR_RESULT_WIDTH>  session_monitor_result;
-    bit<32> ack_seq_diff;
-    bit<PACKET_TAG_WIDTH>  packet_tag;
-    bit<32> src_dst_ip;
-    bit<16> src_dst_port;
-    bit<48> src_dst_mac;
-
-    bit<16> tcpLength;
-}
 
 // The state of the switch, maintained by CPU(control.py)
 register<bit<1>>(32w1) nethcf_state;
@@ -120,7 +40,7 @@ control ingress(inout headers hdr,
         actions = {
             enable_nethcf;
         }
-        max_size = NETHCF_ENABLE_TABLE_SIZE;
+        size = NETHCF_ENABLE_TABLE_SIZE;
     }
 
     // Get the IP address used to match ip2hc_table
@@ -145,7 +65,7 @@ control ingress(inout headers hdr,
             prepare_src_ip;
             prepare_dst_ip;
         }
-        max_size = NETHCF_PREPARE_TABLE_SIZE;
+        size = NETHCF_PREPARE_TABLE_SIZE;
     }
 
     // The IP2HC table, if the current packet hits the IP2HC table, action
@@ -169,7 +89,7 @@ control ingress(inout headers hdr,
             table_miss;
             table_hit;
         }
-        max_size = IP2HC_TABLE_SIZE;
+        size = IP2HC_TABLE_SIZE;
     }
 
     // According to final TTL, select initial TTL and compute Hop Count
@@ -185,7 +105,7 @@ control ingress(inout headers hdr,
         actions = {
             inspect_hc;
         }
-        max_size = HC_INSPECT_TABLE_SIZE;
+        size = HC_INSPECT_TABLE_SIZE;
     }
 
     // Update ip2hc_counter
@@ -221,7 +141,7 @@ control ingress(inout headers hdr,
             meta.ack_seq_diff : ternary;
             meta.session_state : ternary;
         }
-        max_size = 10;
+        size = 10;
     }
 
     // Receive the first SYN packet, employ SYN Cookie to defend
@@ -321,12 +241,6 @@ control ingress(inout headers hdr,
         standard_metadata.egress_spec = standard_metadata.ingress_port;
     }
 
-    // Update Hop Count at switch and controller
-    action update_hc() {
-        set_entry_to_dirty();
-        update_controller();
-    }
-
     action write_to_temporary_bitmap() {
         // Compute the index value (row number) of temporary bitmap
         hash(meta.temporary_bitmap_index, HashAlgorithm.crc16, (bit<4>)0, { meta.ip_for_match }, (bit<8>)16);
@@ -353,6 +267,12 @@ control ingress(inout headers hdr,
         clone3(CloneType.I2E, (bit<32>)32w250, { standard_metadata, meta });
     }
 
+    // Update Hop Count at switch and controller
+    // action update_hc() {
+    //     set_entry_to_dirty();
+    //     update_controller();
+    // }
+
     // Forward table, now it just support layer 2
     action forward_l2(bit<9> egress_port) {
         standard_metadata.egress_spec = egress_port;
@@ -370,7 +290,7 @@ control ingress(inout headers hdr,
         key = {
             standard_metadata.ingress_port: exact;
         }
-        max_size = 10;
+        size = 10;
     }
 
     // This connection pass SYN Cookie check, let the client reconnect
