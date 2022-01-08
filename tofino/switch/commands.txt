@@ -1,0 +1,47 @@
+table_set_default hcf_check_table check_hcf 1
+table_set_default packet_normal_table tag_normal
+table_set_default packet_abnormal_table tag_abnormal
+table_set_default hc_compute_table compute_hc 255
+table_set_default hc_inspect_table inspect_hc
+table_set_default get_ip_table get_src_ip
+table_set_default ip_to_hc_table table_miss
+table_set_default ip_to_hc_table_2 nop
+table_set_default hc_abnormal_table filtering_abnormal
+table_set_default calculate_session_map_index_table calculate_session_map_index
+table_set_default read_session_seq_table read_session_seq_action
+table_set_default session_table session_op
+table_set_default session_init_table_2 init_session_2
+table_set_default session_complete_table_2 complete_session_2
+table_set_default mark_syn_ack_table mark_syn_ack
+table_set_default mark_session_complete_condition_table session_complete_condition_cal
+table_set_default l2_forward_table _drop
+table_set_default miss_packet_clone_table packet_clone
+table_set_default miss_packet_clone_table_copy packet_clone
+table_set_default modify_field_and_truncate_table nop
+table_set_default packet_miss_table tag_abnormal
+table_set_default session_complete_update_table session_complete_update
+
+
+-----------------------------------------------------------
+table_add hcf_check_table check_hcf 2 => 0
+table_add hc_compute_table compute_hc 0->29 => 30 0
+table_add hc_compute_table compute_hc 30->31 => 32 0
+table_add hc_compute_table compute_hc 32->59 => 60 0
+table_add hc_compute_table compute_hc 60->64 => 64 0
+table_add hc_compute_table compute_hc 65->128 => 128 0
+table_add hc_compute_table compute_hc 129->254 => 255 0
+table_add get_ip_table get_des_ip 1 1 =>
+table_add ip_to_hc_table_2 nop 0 =>
+table_add ip_to_hc_table_2 table_hit_2 1 =>
+table_add hc_abnormal_table learning_abnormal 0 =>
+table_add hc_abnormal_table filtering_abnormal 1 =>
+table_add calculate_session_map_index_table calculate_session_map_index 136/*ingress_port*/ =>
+table_add calculate_session_map_index_table reverse_calculate_session_map_index 128/*egress_port*/ =>
+table_add l2_forward_table forward_l2 0 1/*ingress_port*/ => 2/*egress_port*/
+table_add l2_forward_table forward_l2 0 2/*ingress_port*/ => 1/*egress_port*/
+table_add l2_forward_table forward_l2 0 3/*ingress_port*/ => 2/*egress_port*/
+table_add modify_field_and_truncate_table only_truncate 0 0 =>
+table_add modify_field_and_truncate_table modify_field_and_truncate 0 1 =>
+table_add modify_field_and_truncate_table modify_field_and_truncate 1 1 =>
+table_add packet_miss_table tag_normal 0 =>
+table_add packet_miss_table tag_abnormal 1 =>
