@@ -1,0 +1,538 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 49431643
+    name: "ingress.nethcf_enable_table"
+    alias: "nethcf_enable_table"
+  }
+  match_fields {
+    id: 1
+    name: "standard_metadata.ingress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  action_refs {
+    id: 19340846
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  size: 1
+}
+tables {
+  preamble {
+    id: 50040851
+    name: "ingress.nethcf_prepare_table"
+    alias: "nethcf_prepare_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.tcp.syn"
+    bitwidth: 1
+    match_type: EXACT
+  }
+  match_fields {
+    id: 2
+    name: "hdr.tcp.ack"
+    bitwidth: 1
+    match_type: EXACT
+  }
+  action_refs {
+    id: 24195555
+  }
+  action_refs {
+    id: 23274648
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  size: 1
+}
+tables {
+  preamble {
+    id: 38297033
+    name: "ingress.ip2hc_table"
+    alias: "ip2hc_table"
+  }
+  match_fields {
+    id: 1
+    name: "meta.ip_for_match"
+    bitwidth: 32
+    match_type: TERNARY
+  }
+  action_refs {
+    id: 20055900
+  }
+  action_refs {
+    id: 33501934
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  size: 13
+}
+tables {
+  preamble {
+    id: 41775061
+    name: "ingress.hc_inspect_table"
+    alias: "hc_inspect_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv4.ttl"
+    bitwidth: 8
+    match_type: RANGE
+  }
+  action_refs {
+    id: 26087313
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  size: 8
+}
+tables {
+  preamble {
+    id: 35208830
+    name: "ingress.session_monitor_table"
+    alias: "session_monitor_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.tcp.syn"
+    bitwidth: 1
+    match_type: EXACT
+  }
+  match_fields {
+    id: 2
+    name: "hdr.tcp.ack"
+    bitwidth: 1
+    match_type: EXACT
+  }
+  match_fields {
+    id: 3
+    name: "meta.ack_seq_diff"
+    bitwidth: 32
+    match_type: TERNARY
+  }
+  match_fields {
+    id: 4
+    name: "meta.session_state"
+    bitwidth: 2
+    match_type: TERNARY
+  }
+  action_refs {
+    id: 28180312
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  size: 10
+}
+tables {
+  preamble {
+    id: 35552756
+    name: "ingress.l2_forward_table"
+    alias: "l2_forward_table"
+  }
+  match_fields {
+    id: 1
+    name: "standard_metadata.ingress_port"
+    bitwidth: 9
+    match_type: EXACT
+  }
+  action_refs {
+    id: 19344232
+  }
+  action_refs {
+    id: 17087064
+  }
+  action_refs {
+    id: 21257015
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  size: 10
+}
+actions {
+  preamble {
+    id: 21257015
+    name: "NoAction"
+    alias: "NoAction"
+    annotations: "@noWarn(\"unused\")"
+  }
+}
+actions {
+  preamble {
+    id: 19340846
+    name: "ingress.enable_nethcf"
+    alias: "enable_nethcf"
+  }
+  params {
+    id: 1
+    name: "nethcf_enable_flag"
+    bitwidth: 1
+  }
+}
+actions {
+  preamble {
+    id: 24195555
+    name: "ingress.prepare_src_ip"
+    alias: "prepare_src_ip"
+  }
+}
+actions {
+  preamble {
+    id: 23274648
+    name: "ingress.prepare_dst_ip"
+    alias: "prepare_dst_ip"
+  }
+}
+actions {
+  preamble {
+    id: 20055900
+    name: "ingress.table_miss"
+    alias: "table_miss"
+  }
+}
+actions {
+  preamble {
+    id: 33501934
+    name: "ingress.table_hit"
+    alias: "table_hit"
+  }
+  params {
+    id: 1
+    name: "index"
+    bitwidth: 23
+  }
+  params {
+    id: 2
+    name: "hop_count"
+    bitwidth: 8
+  }
+}
+actions {
+  preamble {
+    id: 26087313
+    name: "ingress.inspect_hc"
+    alias: "inspect_hc"
+  }
+  params {
+    id: 1
+    name: "initial_ttl"
+    bitwidth: 8
+  }
+}
+actions {
+  preamble {
+    id: 16913481
+    name: "ingress.update_ip2hc_counter"
+    alias: "update_ip2hc_counter"
+  }
+}
+actions {
+  preamble {
+    id: 31868796
+    name: "ingress.prepare_for_session_monitor"
+    alias: "prepare_for_session_monitor"
+  }
+}
+actions {
+  preamble {
+    id: 28180312
+    name: "ingress.monitor_session"
+    alias: "monitor_session"
+  }
+  params {
+    id: 1
+    name: "session_monitor_result"
+    bitwidth: 3
+  }
+}
+actions {
+  preamble {
+    id: 22999551
+    name: "ingress.init_syn_cookie"
+    alias: "init_syn_cookie"
+  }
+}
+actions {
+  preamble {
+    id: 22188671
+    name: "ingress.init_session"
+    alias: "init_session"
+  }
+}
+actions {
+  preamble {
+    id: 19497977
+    name: "ingress.complete_session"
+    alias: "complete_session"
+  }
+}
+actions {
+  preamble {
+    id: 18439705
+    name: "ingress.restart_session_monitor"
+    alias: "restart_session_monitor"
+  }
+}
+actions {
+  preamble {
+    id: 23104434
+    name: "ingress.tag_packet_abnormal"
+    alias: "tag_packet_abnormal"
+  }
+}
+actions {
+  preamble {
+    id: 32247577
+    name: "ingress.reinspect_hc"
+    alias: "reinspect_hc"
+  }
+}
+actions {
+  preamble {
+    id: 26097343
+    name: "ingress.process_mismatch_at_filtering"
+    alias: "process_mismatch_at_filtering"
+  }
+}
+actions {
+  preamble {
+    id: 31020253
+    name: "ingress.process_mismatch_at_learning"
+    alias: "process_mismatch_at_learning"
+  }
+}
+actions {
+  preamble {
+    id: 33085659
+    name: "ingress.set_report_bitarray"
+    alias: "set_report_bitarray"
+  }
+}
+actions {
+  preamble {
+    id: 32907112
+    name: "ingress.process_miss_at_filtering"
+    alias: "process_miss_at_filtering"
+  }
+}
+actions {
+  preamble {
+    id: 19095701
+    name: "ingress.process_miss_at_learning"
+    alias: "process_miss_at_learning"
+  }
+}
+actions {
+  preamble {
+    id: 18642489
+    name: "ingress.forward_back"
+    alias: "forward_back"
+  }
+}
+actions {
+  preamble {
+    id: 26416164
+    name: "ingress.set_entry_to_dirty"
+    alias: "set_entry_to_dirty"
+  }
+}
+actions {
+  preamble {
+    id: 27758149
+    name: "ingress.update_controller"
+    alias: "update_controller"
+  }
+}
+actions {
+  preamble {
+    id: 17087064
+    name: "ingress.forward_l2"
+    alias: "forward_l2"
+  }
+  params {
+    id: 1
+    name: "egress_port"
+    bitwidth: 9
+  }
+}
+actions {
+  preamble {
+    id: 19344232
+    name: "ingress._drop"
+    alias: "_drop"
+  }
+}
+actions {
+  preamble {
+    id: 23837272
+    name: "ingress.complete_syn_cookie"
+    alias: "complete_syn_cookie"
+  }
+}
+actions {
+  preamble {
+    id: 29606474
+    name: "egress.process_hc_update"
+    alias: "process_hc_update"
+  }
+}
+actions {
+  preamble {
+    id: 26003725
+    name: "egress.process_cloned_miss_at_learning"
+    alias: "process_cloned_miss_at_learning"
+  }
+}
+actions {
+  preamble {
+    id: 22508182
+    name: "egress.process_cloned_miss_at_filtering"
+    alias: "process_cloned_miss_at_filtering"
+  }
+}
+counters {
+  preamble {
+    id: 302991218
+    name: "mismatch_counter"
+    alias: "mismatch_counter"
+  }
+  spec {
+    unit: PACKETS
+  }
+  size: 1
+}
+counters {
+  preamble {
+    id: 313238613
+    name: "miss_counter"
+    alias: "miss_counter"
+  }
+  spec {
+    unit: PACKETS
+  }
+  size: 1
+}
+registers {
+  preamble {
+    id: 377504333
+    name: "nethcf_state"
+    alias: "nethcf_state"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 1
+      }
+    }
+  }
+  size: 1
+}
+registers {
+  preamble {
+    id: 379798083
+    name: "ip2hc_counter"
+    alias: "ip2hc_counter"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 8
+      }
+    }
+  }
+  size: 13
+}
+registers {
+  preamble {
+    id: 380130285
+    name: "ip2hc_valid_flag"
+    alias: "ip2hc_valid_flag"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 1
+      }
+    }
+  }
+  size: 13
+}
+registers {
+  preamble {
+    id: 378663218
+    name: "temporary_bitmap"
+    alias: "temporary_bitmap"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 32
+      }
+    }
+  }
+  size: 16
+}
+registers {
+  preamble {
+    id: 374078877
+    name: "report_bitarray"
+    alias: "report_bitarray"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 1
+      }
+    }
+  }
+  size: 13
+}
+registers {
+  preamble {
+    id: 385861207
+    name: "session_state"
+    alias: "session_state"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 2
+      }
+    }
+  }
+  size: 256
+}
+registers {
+  preamble {
+    id: 383450470
+    name: "session_seq"
+    alias: "session_seq"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 32
+      }
+    }
+  }
+  size: 256
+}
+type_info {
+}
